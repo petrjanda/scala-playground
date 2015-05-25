@@ -12,7 +12,7 @@ trait KafkaApp {
   implicit lazy val actorSystem = ActorSystem("ReactiveKafka")
   implicit lazy val materializer = ActorFlowMaterializer()
 
-  def execute(fn: => Source[String, Unit]): Unit = Try {
+  def execute(fn: => Source[_, Unit]): Unit = Try {
     fn.to(Sink.onComplete {
       case Success(_) => shutdown()
       case Failure(ex) => {

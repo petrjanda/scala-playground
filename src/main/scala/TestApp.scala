@@ -1,12 +1,22 @@
 import akka.stream.scaladsl._
-import com.ngneers.{StreamHelpers, KafkaFlows, KafkaApp}
+import com.ngneers.db.LogsTable
+import com.ngneers.{KafkaApp, KafkaFlows, StreamHelpers}
 import com.softwaremill.react.kafka.ReactiveKafka
 import kafka.serializer.StringDecoder
 
 import scala.language.postfixOps
 
-object UppercaseApp extends App with KafkaApp with StreamHelpers {
+import com.ngneers.domain.Log
+
+
+
+
+
+
+object IndexApp extends App with KafkaApp with StreamHelpers {
   val topics = args.toList
+
+  LogsTable.setup
 
   execute {
     implicit val kafka = new ReactiveKafka(
@@ -19,7 +29,8 @@ object UppercaseApp extends App with KafkaApp with StreamHelpers {
     )
 
     multiPublisherSource(publishers)
-      .map(l => { println(s"sub --> $l"); l })
+      .map(Log(_))
+      .mapAsync(1) { LogsTable.add(_)}
   }
 }
 
