@@ -10,36 +10,24 @@ import scala.util.control.NonFatal
 import akka.stream.Supervision
 
 trait KafkaApp {
-  val decider: Supervision.Decider = exc => exc match {
-    case _ => {
-      println("error")
-
-      Supervision.Stop
-    }
+  val decider: Supervision.Decider = ex => ex match {
+    case _ => Supervision.Stop
   }
 
-  implicit lazy val actorSystem = ActorSystem("ReactiveKafka")
+  implicit lazy val system = ActorSystem("ReactiveKafka")
 
-  implicit lazy val materializer = ActorFlowMaterializer(
-//    ActorFlowMaterializerSettings(actorSystem).withSupervisionStrategy(decider)
+  implicit lazy val mat = ActorFlowMaterializer(
+    ActorFlowMaterializerSettings(system)
+      .withSupervisionStrategy(decider)
   )
 
-  def execute(fn: => Source[_, Unit]): Unit = Try {
-    fn.to(Sink.onComplete {
-      case Success(_) => shutdown()
-      case Failure(ex) => {
-        ex.printStackTrace()
-        shutdown()
-      }
-    }).run()
-  }.recover {
-    case NonFatal(e) => {
-      e.printStackTrace()
-      shutdown()
-    }
+  def runProcessor[T](processor:Processor[T]): Unit = Try { processor.run() }.recover {
+    case NonFatal(ex) => shutdown(Some(ex))
   }
 
-  def shutdown(): Unit = {
-    actorSystem.shutdown()
+  def shutdown(ex:Option[Throwable] = None): Unit = {
+    ex.map(_.printStackTrace())
+
+    system.shutdown()
   }
 }

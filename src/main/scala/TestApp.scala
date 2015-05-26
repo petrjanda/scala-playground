@@ -1,7 +1,7 @@
-import akka.stream.scaladsl._
+import com.ngneers._
 import com.ngneers.db.Logs
 import com.ngneers.domain.Log
-import com.ngneers.{KafkaApp, KafkaFlows, MultiPublisherSource, StreamHelpers}
+import com.ngneers.processors.ReadFileProcessor
 import com.softwaremill.react.kafka.ReactiveKafka
 import kafka.serializer.StringDecoder
 
@@ -18,33 +18,30 @@ object TestApp extends App with KafkaApp with StreamHelpers {
   )
 
   app match {
-    case "index" => {
-      require(tail.nonEmpty, "App needs to have at least one topic to listen to!")
-      println(tail)
-
-      execute {
-        Await.result(Logs.setup, 5 seconds)
-        
-        val publishers = tail.map(kafka.consume(_, app, new StringDecoder()))
-
-        MultiPublisherSource(publishers)
-          .map(Log(_))
-          .mapAsync(1) { Logs.add(_) }
-          .map(i => { print("."); i })
-      }
-    }
+//    case "index" => {
+//      require(tail.nonEmpty, "App needs to have at least one topic to listen to!")
+//      println(tail)
+//
+//      execute {
+//        Await.result(Logs.setup, 5 seconds)
+//
+//        val publishers = tail.map(kafka.consume(_, app, new StringDecoder()))
+//
+//        MultiPublisherSource(publishers)
+//          .map(Log(_))
+//          .mapAsync(1) { Logs.add(_) }
+//          .map(i => { print("."); i })
+//      }
+//    }
 
     case "read" => {
       val topic :: path :: Nil = tail.toList
 
-      execute {
-        val file = io.Source.fromFile(path)
-        val lines = file.getLines()
-
-        Source(() => lines)
-          .map(i => { print("."); i })
-          .via(KafkaFlows.publisher(topic, app))
-      }
+      runProcessor { new ReadFileProcessor(path, topic, app)}
     }
   }
 }
+
+
+
+
