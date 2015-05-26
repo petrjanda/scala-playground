@@ -1,5 +1,5 @@
 import com.ngneers._
-import com.ngneers.processors.File2KafkaProcessor
+import com.ngneers.processors.{File2KafkaProcessor, Kafka2CassandraProcessor}
 import com.softwaremill.react.kafka.ReactiveKafka
 
 import scala.language.postfixOps
@@ -13,21 +13,9 @@ object TestApp extends App with KafkaApp with StreamHelpers {
   )
 
   app match {
-//    case "index" => {
-//      require(tail.nonEmpty, "App needs to have at least one topic to listen to!")
-//      println(tail)
-//
-//      execute {
-//        Await.result(Logs.setup, 5 seconds)
-//
-//        val publishers = tail.map(kafka.consume(_, app, new StringDecoder()))
-//
-//        MultiPublisherSource(publishers)
-//          .map(Log(_))
-//          .mapAsync(1) { Logs.add(_) }
-//          .map(i => { print("."); i })
-//      }
-//    }
+    case "index" => {
+      runProcessor { new Kafka2CassandraProcessor(tail) }
+    }
 
     case "read" => {
       val topic :: path :: Nil = tail.toList
@@ -36,7 +24,4 @@ object TestApp extends App with KafkaApp with StreamHelpers {
     }
   }
 }
-
-
-
 
