@@ -10,7 +10,6 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-
 class Kafka2CassandraProcessor(topics:List[String])
                          (implicit kafka:ReactiveKafka) extends Processor {
   require(topics.nonEmpty, "App needs to have at least one topic to listen to!")

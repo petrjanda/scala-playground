@@ -6,6 +6,7 @@ import akka.stream.scaladsl.{Sink, Source}
 import com.ngneers.Processor
 import com.ngneers.flows.SinkFlow
 import com.softwaremill.react.kafka.ReactiveKafka
+import kafka.common.FailedToSendMessageException
 import kafka.serializer.StringEncoder
 
 import scala.io.Codec
@@ -25,7 +26,13 @@ class File2KafkaProcessor(path:String, topic:String)
       .map(i => { print("."); i })
       .via(SinkFlow(subscriber))
 
-  override protected def shutdown(ex:Option[Throwable] = None): Unit = {
+  override def shutdown(ex:Option[Throwable] = None): Unit = {
+    ex.map(
+      _ match {
+        case ex:FailedToSendMessageException => print("fuck, kafka is down!")
+      }
+    )
+
     super.shutdown(ex)
 
     file.close()

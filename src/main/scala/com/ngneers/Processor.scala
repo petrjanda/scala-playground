@@ -32,7 +32,7 @@ trait Processor {
       case Failure(ex) => shutdown(Some(ex))
     }).run()
 
-  protected def shutdown(ex:Option[Throwable] = None): Unit = {
+  def shutdown(ex:Option[Throwable] = None): Unit = {
     ex.map(_.printStackTrace())
 
     system.shutdown()
