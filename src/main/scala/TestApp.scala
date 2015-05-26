@@ -1,12 +1,7 @@
 import com.ngneers._
-import com.ngneers.db.Logs
-import com.ngneers.domain.Log
-import com.ngneers.processors.ReadFileProcessor
+import com.ngneers.processors.File2KafkaProcessor
 import com.softwaremill.react.kafka.ReactiveKafka
-import kafka.serializer.StringDecoder
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
 import scala.language.postfixOps
 
 object TestApp extends App with KafkaApp with StreamHelpers {
@@ -37,7 +32,7 @@ object TestApp extends App with KafkaApp with StreamHelpers {
     case "read" => {
       val topic :: path :: Nil = tail.toList
 
-      runProcessor { new ReadFileProcessor(path, topic, app)}
+      runProcessor { new File2KafkaProcessor(path, topic) }
     }
   }
 }

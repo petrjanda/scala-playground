@@ -21,7 +21,7 @@ trait KafkaApp {
       .withSupervisionStrategy(decider)
   )
 
-  def runProcessor[T](processor:Processor[T]): Unit = Try { processor.run() }.recover {
+  def runProcessor(processor:Processor): Unit = Try { processor.run() }.recover {
     case NonFatal(ex) => shutdown(Some(ex))
   }
 

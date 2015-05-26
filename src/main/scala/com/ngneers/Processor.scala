@@ -6,8 +6,8 @@ import akka.stream.{ActorFlowMaterializer, ActorFlowMaterializerSettings, Superv
 
 import scala.util.{Failure, Success}
 
-trait Processor[T] {
-  def source:Source[T, Unit]
+trait Processor {
+  def source:Source[_, Unit]
 
   val name = "processor"
 
@@ -26,16 +26,15 @@ trait Processor[T] {
       .withSupervisionStrategy(decider)
   )
 
-  def shutdown(ex:Option[Throwable] = None): Unit = {
-    println("shutdown")
+  def run(): Unit =
+    source.to(Sink.onComplete {
+      case Success(_) => shutdown()
+      case Failure(ex) => shutdown(Some(ex))
+    }).run()
+
+  protected def shutdown(ex:Option[Throwable] = None): Unit = {
     ex.map(_.printStackTrace())
 
     system.shutdown()
   }
-
-  def run() =
-    source.to(Sink.onComplete {
-      case Success(_) => { shutdown() }
-      case Failure(ex) => shutdown(Some(ex))
-    }).run()
 }
