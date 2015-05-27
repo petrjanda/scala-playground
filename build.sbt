@@ -32,4 +32,5 @@ libraryDependencies ++= Seq(
   "com.websudos"  %% "phantom-dsl"                   % phantomVersion,
   "com.websudos"  %% "phantom-connectors"                   % phantomVersion
 )
-    
+
+fork in run := true

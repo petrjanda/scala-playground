@@ -3,6 +3,7 @@ package com.ngneers
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.{Sink, Source}
 import akka.stream.{ActorFlowMaterializer, ActorFlowMaterializerSettings, Supervision}
+import kafka.common.FailedToSendMessageException
 
 import scala.util.{Failure, Success}
 
@@ -11,12 +12,10 @@ trait Processor {
 
   val name = "processor"
 
-  val decider: Supervision.Decider = ex => ex match {
-    case ex => {
-      shutdown(Some(ex))
+  val decider: Supervision.Decider = ex => {
+    shutdown(Some(ex))
 
-      Supervision.Stop
-    }
+    Supervision.Stop
   }
 
   implicit lazy val system = ActorSystem(name)
@@ -33,8 +32,6 @@ trait Processor {
     }).run()
 
   def shutdown(ex:Option[Throwable] = None): Unit = {
-    ex.map(_.printStackTrace())
-
     system.shutdown()
   }
 }
