@@ -40,6 +40,7 @@ class File2KafkaProcessor(path:String, topic:String)
       .map(i => { print("."); i })
       .map(i => { 
         // Get around System.exit(1) handler for any event in the case of producer issues
+        // See https://github.com/stealthly/scala-kafka/blob/master/src/main/scala/KafkaProducer.scala#L106-114
         producer.producer.send(producer.kafkaMesssage(encoder.toBytes(i), null)) 
       })
 
