@@ -38,7 +38,10 @@ class File2KafkaProcessor(path:String, topic:String)
   def source =
     Source(() => lines)
       .map(i => { print("."); i })
-      .map(i => { producer.producer.send(producer.kafkaMesssage(encoder.toBytes(i), null)) })
+      .map(i => { 
+        // Get around System.exit(1) handler for any event in the case of producer issues
+        producer.producer.send(producer.kafkaMesssage(encoder.toBytes(i), null)) 
+      })
 
 
   override def shutdown(ex:Option[Throwable] = None): Unit = {
