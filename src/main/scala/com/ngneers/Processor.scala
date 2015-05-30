@@ -1,13 +1,19 @@
 package com.ngneers
 
-import akka.actor.ActorSystem
+import akka.actor.Actor
 import akka.stream.scaladsl.{Sink, Source}
 import akka.stream.{ActorFlowMaterializer, ActorFlowMaterializerSettings, Supervision}
-import kafka.common.FailedToSendMessageException
 
 import scala.util.{Failure, Success}
 
-trait Processor {
+object Processor {
+  case object Run
+  case class Shutdown(ex:Option[Throwable] = None)
+}
+
+abstract class Processor extends Actor {
+  import com.ngneers.Processor._
+
   def source:Source[_, Unit]
 
   val name = "processor"
@@ -18,12 +24,16 @@ trait Processor {
     Supervision.Stop
   }
 
-  implicit lazy val system = ActorSystem(name)
-
+  implicit lazy val system = context.system
   implicit lazy val mat = ActorFlowMaterializer(
     ActorFlowMaterializerSettings(system)
       .withSupervisionStrategy(decider)
   )
+
+  def receive = {
+    case Run => run()
+    case Shutdown(ex) => shutdown(ex)
+  }
 
   def run(): Unit =
     source.to(Sink.onComplete {

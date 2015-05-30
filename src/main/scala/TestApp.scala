@@ -1,33 +1,28 @@
+import akka.actor.{Actor, ActorSystem, Props}
 import com.ngneers._
 import com.ngneers.processors.{File2KafkaProcessor, Kafka2CassandraProcessor}
 import com.softwaremill.react.kafka.ReactiveKafka
 
 import scala.language.postfixOps
-import scala.util.Try
-import scala.util.control.NonFatal
 
 object TestApp extends App {
   val app :: tail = args.toList
 
+  implicit val system = ActorSystem("test")
   implicit val kafka = new ReactiveKafka(
-    host = "localhost:9092",
-    zooKeeperHost = "localhost:2181"
+    host = "192.168.59.103:9092",
+    zooKeeperHost = "192.168.59.103:2181"
   )
 
-  app match {
-    case "index" => {
-      runProcessor { new Kafka2CassandraProcessor(tail) }
-    }
-
+  val msg = app match {
+    case "index" => Kafka2CassandraProcessor.Args(tail)
     case "read" => {
       val topic :: path :: Nil = tail.toList
 
-      runProcessor { new File2KafkaProcessor(path, topic) }
+      File2KafkaProcessor.Args(topic, path)
     }
   }
 
-  def runProcessor(processor:Processor): Unit = Try { processor.run() }.recover {
-    case NonFatal(ex) => processor.shutdown(Some(ex))
-  }
+  system.actorOf(Props[Runner]) ! msg
 }
 
