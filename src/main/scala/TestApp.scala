@@ -15,7 +15,12 @@ object TestApp extends App {
   )
 
   val msg = app match {
-    case "index" => Kafka2CassandraProcessor.Args(tail)
+    case "index" => {
+      require(tail.nonEmpty, "App needs to have at least one topic to listen to!")
+
+      Kafka2CassandraProcessor.Args(tail)
+    }
+
     case "read" => {
       val topic :: path :: Nil = tail.toList
 

@@ -19,8 +19,6 @@ object Kafka2CassandraProcessor {
 
 class Kafka2CassandraProcessor(topics:List[String])
                          (implicit kafka:ReactiveKafka) extends Processor {
-  require(topics.nonEmpty, "App needs to have at least one topic to listen to!")
-
 //  Await.result(Logs.setup, 5 seconds)
 
   var publishers: List[Publisher[String]] = _
@@ -35,5 +33,4 @@ class Kafka2CassandraProcessor(topics:List[String])
 //      .map(Log(_))
 //      .mapAsync(1) { Logs.add(_) }
       .map(i => { print(i); i })
-//      .map(i => { print("."); i })
 }
