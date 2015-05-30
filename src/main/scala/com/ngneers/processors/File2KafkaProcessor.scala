@@ -53,9 +53,8 @@ class File2KafkaProcessor(path:String, topic:String)
 
 
   override def shutdown(ex:Option[Throwable] = None): Unit = {
-    super.shutdown(ex)
-
     producer.close()
     file.close()
+    system.shutdown()
   }
 }

@@ -33,4 +33,6 @@ class Kafka2CassandraProcessor(topics:List[String])
 //      .map(Log(_))
 //      .mapAsync(1) { Logs.add(_) }
       .map(i => { print(i); i })
+
+  override def shutdown(ex:Option[Throwable] = None): Unit = system.shutdown()
 }

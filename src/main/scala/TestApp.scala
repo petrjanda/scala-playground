@@ -1,4 +1,4 @@
-import akka.actor.{Actor, ActorSystem, Props}
+import akka.actor.ActorSystem
 import com.ngneers._
 import com.ngneers.processors.{File2KafkaProcessor, Kafka2CassandraProcessor}
 import com.softwaremill.react.kafka.ReactiveKafka
@@ -28,6 +28,6 @@ object TestApp extends App {
     }
   }
 
-  system.actorOf(Props[Runner]) ! msg
+  system.actorOf(Runner.props(), "runner") ! msg
 }
 

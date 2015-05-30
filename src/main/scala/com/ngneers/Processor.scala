@@ -25,10 +25,13 @@ abstract class Processor extends Actor {
   }
 
   implicit lazy val system = context.system
+
   implicit lazy val mat = ActorFlowMaterializer(
     ActorFlowMaterializerSettings(system)
       .withSupervisionStrategy(decider)
   )
+
+  override def postStop(): Unit = shutdown()
 
   def receive = {
     case Run => run()
@@ -41,7 +44,5 @@ abstract class Processor extends Actor {
       case Failure(ex) => shutdown(Some(ex))
     }).run()
 
-  def shutdown(ex:Option[Throwable] = None): Unit = {
-    system.shutdown()
-  }
+  def shutdown(ex:Option[Throwable] = None): Unit = {}
 }

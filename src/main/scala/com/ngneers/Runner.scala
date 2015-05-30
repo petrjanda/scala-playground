@@ -2,11 +2,16 @@ package com.ngneers
 
 import akka.actor.{Actor, Props}
 import com.ngneers.processors.{File2KafkaProcessor, Kafka2CassandraProcessor}
+import com.softwaremill.react.kafka.ReactiveKafka
 
-class Runner extends Actor {
+object Runner {
+  def props()(implicit kafka:ReactiveKafka) = Props(new Runner())
+}
+
+class Runner()(implicit kafka:ReactiveKafka) extends Actor {
   def receive = {
-    case Kafka2CassandraProcessor.Args(topics) => run(Props[Kafka2CassandraProcessor])
-    case File2KafkaProcessor.Args(topic, path) => run(Props[File2KafkaProcessor])
+    case args@Kafka2CassandraProcessor.Args(_) => run(Kafka2CassandraProcessor.props(args))
+    case args@File2KafkaProcessor.Args(_, _) => run(File2KafkaProcessor.props(args))
   }
 
   def run(props: Props) =
