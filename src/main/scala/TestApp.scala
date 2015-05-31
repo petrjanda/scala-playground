@@ -1,7 +1,6 @@
 import akka.actor.ActorSystem
 import com.ngneers._
-import com.ngneers.flows.File2KafkaProcessor
-import com.ngneers.processors.Kafka2CassandraProcessor
+import com.ngneers.processors.{File2KafkaProcessor, Kafka2CassandraProcessor}
 import com.softwaremill.react.kafka.ReactiveKafka
 
 import scala.language.postfixOps
