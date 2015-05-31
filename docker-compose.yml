@@ -1,0 +1,59 @@
+#frontend:
+#   build: frontend
+#   entrypoint: /opt/app/target/universal/stage/bin/frontend
+#   command: "-Dconfig.file=/etc/opt/app/docker.conf"
+#   links:
+#      - "service"
+#   ports:
+#      - "49910:9000"
+#   volumes:
+#      - frontend/conf:/etc/opt/app:ro
+#   volumes_from:
+#      - maven
+
+#service:
+#   build: service
+#   command: -Dconfig.file=/etc/opt/app/docker.conf
+#   links:
+#      - "database"
+#   ports:
+#      - "49920:8880"
+#   expose:
+#      - "8880"
+#   volumes:
+#      - service/src/main/resources:/etc/opt/app:ro
+#   volumes_from:
+#      - maven
+
+kafka:
+    image: spotify/kafka
+    ports:
+        - "2181:2181"
+        - "9092:9092"
+
+    environment:
+        - ADVERTISED_HOST=192.168.59.103
+        - ADVERTISED_PORT=9092
+
+cassandra:
+    image: spotify/cassandra
+    ports:
+        - "9160:9160"
+
+elasticsearch:
+    image: elasticsearch
+    ports:
+        - "9200:9200"
+        - "9300:9300"
+
+
+
+#maven:
+#   image: debian:wheezy
+#   volumes:
+#      - ~/.m2:/root/.m2:rw
+#      - ~/.ivy2:/root/.ivy2:rw
+##      - ~/.m2:/home/docker/.m2:rw
+#      - ~/.ivy2:/home/docker/.ivy2:rw
+#      - service/src/main/resources:/root/.sbt:ro
+

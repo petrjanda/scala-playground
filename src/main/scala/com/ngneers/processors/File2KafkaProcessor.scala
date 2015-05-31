@@ -24,7 +24,11 @@ class File2KafkaProcessor(path:String, topic:String)
                          (implicit kafka:ReactiveKafka) extends Processor {
 
   override val decider: Supervision.Decider = ex => ex match {
-    case ex: FailedToSendMessageException => Supervision.Resume
+    case ex: FailedToSendMessageException => {
+      ex.printStackTrace()
+
+      Supervision.Resume
+    }
 
     case _ => {
       shutdown(Some(ex))
@@ -41,6 +45,8 @@ class File2KafkaProcessor(path:String, topic:String)
   val lines = file.getLines()
   val encoder = new StringEncoder()
   val producer = new KafkaProducer(topic, kafka.host)
+
+  println("reading file ...")
 
   def source =
     Source(() => lines)

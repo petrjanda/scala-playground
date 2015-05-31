@@ -38,11 +38,13 @@ abstract class Processor extends Actor {
     case Shutdown(ex) => shutdown(ex)
   }
 
-  def run(): Unit =
+  def run(): Unit = {
+    println("run ...")
     source.to(Sink.onComplete {
       case Success(_) => shutdown()
       case Failure(ex) => shutdown(Some(ex))
     }).run()
+  }
 
   def shutdown(ex:Option[Throwable] = None): Unit = {}
 }

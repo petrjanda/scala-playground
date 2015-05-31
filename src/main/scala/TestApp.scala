@@ -4,14 +4,17 @@ import com.ngneers.processors.{File2KafkaProcessor, Kafka2CassandraProcessor}
 import com.softwaremill.react.kafka.ReactiveKafka
 
 import scala.language.postfixOps
+import sys.process._
 
 object TestApp extends App {
   val app :: tail = args.toList
 
+  val ip = "boot2docker ip" !!
+
   implicit val system = ActorSystem("test")
   implicit val kafka = new ReactiveKafka(
-    host = "192.168.59.103:9092",
-    zooKeeperHost = "192.168.59.103:2181"
+    host = s"${ip.trim}:9092",
+    zooKeeperHost = s"${ip.trim}:2181"
   )
 
   val msg = app match {
