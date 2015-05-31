@@ -30,10 +30,11 @@ kafka:
     ports:
         - "2181:2181"
         - "9092:9092"
-
     environment:
         - ADVERTISED_HOST=192.168.59.103
         - ADVERTISED_PORT=9092
+    volumes:
+        - data/kafka/:/var/kafka
 
 cassandra:
     image: spotify/cassandra
@@ -45,21 +46,22 @@ cassandra:
         - "9042:9042"
         - "8012:8012"
         - "61621:61621"
+    volumes:
+        - data/cassandra/:/var/cassandra
 
 elasticsearch:
     image: elasticsearch
     ports:
         - "9200:9200"
         - "9300:9300"
-
-
+    volumes:
+        - data/elasticsearch/:/var/elasticsearch
 
 #maven:
-#   image: debian:wheezy
-#   volumes:
-#      - ~/.m2:/root/.m2:rw
-#      - ~/.ivy2:/root/.ivy2:rw
-##      - ~/.m2:/home/docker/.m2:rw
-#      - ~/.ivy2:/home/docker/.ivy2:rw
-#      - service/src/main/resources:/root/.sbt:ro
-
+#    image: debian:wheezy
+#    volumes:
+#        - ~/.m2:/root/.m2:rw
+#        - ~/.ivy2:/root/.ivy2:rw
+#        - ~/.m2:/home/docker/.m2:rw
+#        - ~/.ivy2:/home/docker/.ivy2:rw
+#        - service/src/main/resources:/root/.sbt:ro
