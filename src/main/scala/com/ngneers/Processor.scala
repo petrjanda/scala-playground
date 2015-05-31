@@ -14,7 +14,7 @@ object Processor {
 abstract class Processor extends Actor {
   import com.ngneers.Processor._
 
-  def source:Source[_, Unit]
+  def source:Source[_, _]
 
   val name = "processor"
 

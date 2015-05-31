@@ -1,18 +1,11 @@
-package com.ngneers.processors
-
-import java.nio.charset.CodingErrorAction
+package com.ngneers.flows
 
 import akka.actor.Props
 import akka.stream.Supervision
-import akka.stream.scaladsl.{Sink, Source}
 import com.ngneers.Processor
-import com.ngneers.flows.SinkFlow
 import com.softwaremill.react.kafka.ReactiveKafka
 import kafka.common.FailedToSendMessageException
 import kafka.producer.KafkaProducer
-import kafka.serializer.StringEncoder
-
-import scala.io.Codec
 
 object File2KafkaProcessor {
   case class Args(topic:String, path:String)
@@ -36,31 +29,23 @@ class File2KafkaProcessor(path:String, topic:String)
       Supervision.Stop
     }
   }
-
-  implicit val codec = Codec("UTF-8")
-  codec.onMalformedInput(CodingErrorAction.REPLACE)
-  codec.onUnmappableCharacter(CodingErrorAction.REPLACE)
-
-  val file = io.Source.fromFile(path)
-  val lines = file.getLines()
-  val encoder = new StringEncoder()
-  val producer = new KafkaProducer(topic, kafka.host)
-
-  println("reading file ...")
+  
+  val streamKafkaProducer = new StreamKafkaProducer(new KafkaProducer(
+    topic = topic,
+    brokerList = kafka.host,
+    synchronously = false,
+    batchSize = 10,
+    requestRequiredAcks = 1
+  ))
 
   def source =
-    Source(() => lines)
+    SyncFileSource(path, "UTF-8")
       .map(i => { print("."); i })
-      .map(i => { 
-        // Get around System.exit(1) handler for any event in the case of producer issues
-        // See https://github.com/stealthly/scala-kafka/blob/master/src/main/scala/KafkaProducer.scala#L106-114
-        producer.producer.send(producer.kafkaMesssage(encoder.toBytes(i), null)) 
-      })
+      .via(streamKafkaProducer.flow)
 
 
   override def shutdown(ex:Option[Throwable] = None): Unit = {
-    producer.close()
-    file.close()
     system.shutdown()
   }
 }
+
