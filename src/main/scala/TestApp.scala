@@ -1,3 +1,5 @@
+import java.net.InetSocketAddress
+
 import akka.actor.ActorSystem
 import com.ngneers._
 import com.ngneers.processors.{File2KafkaProcessor, Kafka2CassandraProcessor}
@@ -10,6 +12,8 @@ object TestApp extends App {
   val app :: tail = args.toList
 
   val ip = "boot2docker ip" !!
+
+  Conf.cassandra = CassandraConf(Set(new InetSocketAddress(ip, 9042)))
 
   implicit val system = ActorSystem("test")
   implicit val kafka = new ReactiveKafka(
@@ -34,3 +38,8 @@ object TestApp extends App {
   system.actorOf(Runner.props(), "runner") ! msg
 }
 
+object Conf {
+  var cassandra: CassandraConf = null
+}
+
+case class CassandraConf(hosts:Set[InetSocketAddress])

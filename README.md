@@ -27,7 +27,6 @@ This would create a new virtualbox instance (based on boot2docker) which will be
 
 To get the infrastructure up:
 
-    boot2docker up
     docker-compose up -d
 
 It might take a while first time (downloading all the necessary docker images). Once done, you can verify everything running:

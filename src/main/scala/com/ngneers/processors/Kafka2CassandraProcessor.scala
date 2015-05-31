@@ -4,11 +4,15 @@ package com.ngneers.processors
 //import com.ngneers.domain.Log
 
 import akka.actor.Props
+import com.ngneers.db.Logs
+import com.ngneers.domain.Log
 import com.ngneers.{MultiPublisherSource, Processor}
 import com.softwaremill.react.kafka.ReactiveKafka
 import kafka.serializer.StringDecoder
 import org.reactivestreams.Publisher
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
 import scala.language.postfixOps
 
 object Kafka2CassandraProcessor {
@@ -19,7 +23,9 @@ object Kafka2CassandraProcessor {
 
 class Kafka2CassandraProcessor(topics:List[String])
                          (implicit kafka:ReactiveKafka) extends Processor {
-//  Await.result(Logs.setup, 5 seconds)
+  override val name = "indexer"
+
+  Await.result(Logs.setup, 5 seconds)
 
   var publishers: List[Publisher[String]] = _
 
@@ -28,12 +34,12 @@ class Kafka2CassandraProcessor(topics:List[String])
       kafka.consume(_, name, new StringDecoder())
     )
 
+  var total = 0
+
   def source =
     MultiPublisherSource(publishers)
-//      .map(Log(_))
-//      .mapAsync(1) { Logs.add(_) }
-//      .map(i => { print(i); i })
-        .map(i => { print("."); i })
+      .map(Log(_))
+      .mapAsync(1) { Logs.add(_) }
 
   override def shutdown(ex:Option[Throwable] = None): Unit = system.shutdown()
 }

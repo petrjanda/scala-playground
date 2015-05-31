@@ -30,7 +30,8 @@ val phantomVersion = "1.8.0"
 libraryDependencies ++= Seq(
   "com.softwaremill" %% "reactive-kafka" % "0.5.0",
   "com.websudos"  %% "phantom-dsl"                   % phantomVersion,
-  "com.websudos"  %% "phantom-connectors"                   % phantomVersion
+  "com.websudos"  %% "phantom-connectors"                   % phantomVersion,
+  "com.sclasen" %% "akka-kafka" % "0.1.0" % "compile"
 )
 
 fork in run := true

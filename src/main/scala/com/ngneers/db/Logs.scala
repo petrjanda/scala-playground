@@ -6,7 +6,7 @@ import java.util.UUID
 import com.datastax.driver.core.Row
 import com.ngneers.domain.Log
 import com.websudos.phantom.CassandraTable
-import com.websudos.phantom.connectors.{CassandraProperties, DefaultCassandraManager, KeySpace, SimpleCassandraConnector}
+import com.websudos.phantom.connectors.{DefaultCassandraManager, KeySpace, SimpleCassandraConnector}
 import com.websudos.phantom.dsl.{StringColumn, UUIDColumn}
 import com.websudos.phantom.keys.PartitionKey
 
