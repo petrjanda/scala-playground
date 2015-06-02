@@ -2,7 +2,7 @@ package com.ngneers
 
 import akka.actor.SupervisorStrategy.{Escalate, Stop}
 import akka.actor.{ActorInitializationException, OneForOneStrategy, Actor, Props}
-import com.ngneers.processors.{File2KafkaProcessor, Kafka2CassandraProcessor}
+import com.ngneers.processors.{File2EsProcessor, File2KafkaProcessor, Kafka2CassandraProcessor}
 import com.softwaremill.react.kafka.ReactiveKafka
 import scala.concurrent.duration._
 import scala.language.postfixOps
@@ -23,8 +23,9 @@ class Runner()(implicit kafka:ReactiveKafka) extends Actor {
     }
 
   def receive = {
-    case args@Kafka2CassandraProcessor.Args(_) => run(Kafka2CassandraProcessor.props(args))
-    case args@File2KafkaProcessor.Args(_, _) => run(File2KafkaProcessor.props(args))
+    case args:Kafka2CassandraProcessor.Args => run(Kafka2CassandraProcessor.props(args))
+    case args:File2KafkaProcessor.Args => run(File2KafkaProcessor.props(args))
+    case args:File2EsProcessor.Args => run(File2EsProcessor.props(args))
   }
 
   def run(props: Props) =

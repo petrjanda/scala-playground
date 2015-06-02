@@ -2,7 +2,7 @@ import java.net.InetSocketAddress
 
 import akka.actor.ActorSystem
 import com.ngneers._
-import com.ngneers.processors.{File2KafkaProcessor, Kafka2CassandraProcessor}
+import com.ngneers.processors.{File2EsProcessor, File2KafkaProcessor, Kafka2CassandraProcessor}
 import com.softwaremill.react.kafka.ReactiveKafka
 
 import scala.language.postfixOps
@@ -11,15 +11,8 @@ import sys.process._
 object TestApp extends App {
   val app :: tail = args.toList
 
-  val ip = "boot2docker ip" !!
-
-  Conf.cassandra = CassandraConf(Set(new InetSocketAddress(ip, 9042)))
-
   implicit val system = ActorSystem("test")
-  implicit val kafka = new ReactiveKafka(
-    host = s"${ip.trim}:9092",
-    zooKeeperHost = s"${ip.trim}:2181"
-  )
+  implicit val kafka = connectKafka()
 
   val msg = app match {
     case "index" => {
@@ -33,9 +26,25 @@ object TestApp extends App {
 
       File2KafkaProcessor.Args(topic, path)
     }
+
+    case "read-es" => {
+      val path :: uri :: Nil = tail.toList
+
+      File2EsProcessor.Args(path, uri, "foo", "bar")
+
+    }
   }
 
   system.actorOf(Runner.props(), "runner") ! msg
+
+  private def connectKafka(): ReactiveKafka = {
+    val ip = "docker-machine ip" !!
+
+    new ReactiveKafka(
+      host = s"${ip.trim}:9092",
+      zooKeeperHost = s"${ip.trim}:2181"
+    )
+  }
 }
 
 object Conf {

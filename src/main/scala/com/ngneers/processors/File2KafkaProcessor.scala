@@ -3,7 +3,7 @@ package com.ngneers.processors
 import akka.actor.Props
 import akka.stream.Supervision
 import com.ngneers.Processor
-import com.ngneers.flows.{StreamKafkaProducer, SyncFileSource}
+import com.ngneers.flows.{SyncFileSource, StreamKafkaProducer}
 import com.softwaremill.react.kafka.ReactiveKafka
 import kafka.common.FailedToSendMessageException
 import kafka.producer.KafkaProducer
